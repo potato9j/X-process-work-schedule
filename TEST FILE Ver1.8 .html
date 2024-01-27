@@ -1,0 +1,158 @@
+<html>
+<head>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>근무 공정표</h1>
+    <p>사용 가능한 사람 이름을 입력하세요. (쉼표로 구분)</p>
+    <input type="text" id="names" value="장현호, 김동환, 홍정빈, 변준규, 김진수1, 장민교, 김종훈, 윤예성, 김정한, 송수영, 이정안, 박지한, 이세진, 김효준, 김형민, 박세준, 이정욱, 성시우, 장혜민, 한창윤, 손재훈, 서민수, 김진수2, 허진솔, 정준, 김민규, 홍원기, 박준서, 정민수, 정현욱, 주성찬, 유동규, 반정호, 신호섭, 유태종, 황승민, 김현묵, 김민수, 김성민, 윤세종, 김영호">
+    <p>매칭되지 않을 특수관계자를 입력하세요. (이름-이름 형식, 쉼표로 구분)</p>
+    <input type="text" id="special" value="">
+    <p>특별사유로 열외할 사람을 입력하세요. (이름 형식, 쉼표로 구분)</p>
+    <input type="text" id="exclude" value="">
+    <p>근무 시작 날짜를 입력하세요. (yyyy-mm-dd 형식)</p>
+    <input type="date" id="start" value="2024-01-01">
+    <p>근무 종료 날짜를 입력하세요. (yyyy-mm-dd 형식)</p>
+    <input type="date" id="end" value="2024-01-31">
+    <button onclick="generate()">근무표 생성</button>
+    <button onclick="save()">근무표 저장</button>
+    <div id="result"></div>
+    <div id="count"></div>
+    <script>
+        // 근무 타임 배열
+        var times = ["06시~12시", "12시~18시", "18시~00시", "00시~06시"];
+        // 근무 횟수 객체
+        var counts = {};
+        // 근무표 생성 함수
+        function generate() {
+            // 입력값 받아오기
+            var names = document.getElementById("names").value.split(",");
+            var special = document.getElementById("special").value.split(",");
+            var exclude = document.getElementById("exclude").value.split(",");
+            var start = new Date(document.getElementById("start").value);
+            var end = new Date(document.getElementById("end").value);
+            // 결과 테이블 초기화
+            var result = document.getElementById("result");
+            result.innerHTML = "";
+            // 근무 횟수 초기화
+            for (var i = 0; i < names.length; i++) {
+                counts[names[i]] = 0;
+            }
+            // 근무표 테이블 생성
+            var table = document.createElement("table");
+            // 테이블 헤더 생성
+            var header = document.createElement("tr");
+            var date = document.createElement("th");
+            date.innerHTML = "날짜";
+            header.appendChild(date);
+            for (var i = 0; i < times.length; i++) {
+                var time = document.createElement("th");
+                time.innerHTML = times[i];
+                header.appendChild(time);
+            }
+            table.appendChild(header);
+            // 테이블 바디 생성
+            var current = new Date(start);
+            while (current <= end) {
+                // 휴일이 아닌 경우만 근무표 작성
+                if (current.getDay() != 0 && current.getDay() != 6) {
+                    // 테이블 행 생성
+                    var row = document.createElement("tr");
+                    // 날짜 셀 생성
+                    var date = document.createElement("td");
+                    date.innerHTML = current.toLocaleDateString();
+                    row.appendChild(date);
+                    // 근무 타임별 셀 생성
+                    for (var i = 0; i < times.length; i++) {
+                        // 근무자 4명 무작위로 선택
+                        var workers = shuffle(names).slice(0, 4);
+                        // 특수관계자와 열외자 제외
+                        workers = filter(workers, special, exclude);
+                        // 근무자 2명씩 짝지어서 팀 구성
+                        var teams = [workers[0] + " - " + workers[1], workers[2] + " - " + workers[3]];
+                        // 근무 횟수 증가
+                        for (var j = 0; j < workers.length; j++) {
+                            counts[workers[j]]++;
+                        }
+                        // 근무 셀 생성
+                        var cell = document.createElement("td");
+                        cell.innerHTML = teams.join("<br>");
+                        row.appendChild(cell);
+                    }
+                    table.appendChild(row);
+                }
+                // 다음 날짜로 이동
+                current.setDate(current.getDate() + 1);
+            }
+            // 결과 테이블에 근무표 추가
+            result.appendChild(table);
+            // 근무 횟수 표시
+            var count = document.getElementById("count");
+            count.innerHTML = "";
+            for (var name in counts) {
+                count.innerHTML += name + ": " + counts[name] + "번<br>";
+            }
+        }
+        // 배열 섞기 함수
+        function shuffle(array) {
+            var currentIndex = array.length, temporaryValue, randomIndex;
+            while (0 !== currentIndex) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex -= 1;
+                temporaryValue = array[currentIndex];
+                array[currentIndex] = array[randomIndex];
+                array[randomIndex] = temporaryValue;
+            }
+            return array;
+        }
+        // 특수관계자와 열외자 제외 함수
+        function filter(workers, special, exclude) {
+            // 특수관계자 제외
+            for (var i = 0; i < special.length; i++) {
+                var pair = special[i].split("-");
+                if (workers.includes(pair[0]) && workers.includes(pair[1])) {
+                    workers.splice(workers.indexOf(pair[0]), 1);
+                }
+            }
+            // 열외자 제외
+            for (var i = 0; i < exclude.length; i++) {
+                if (workers.includes(exclude[i])) {
+                    workers.splice(workers.indexOf(exclude[i]), 1);
+                }
+            }
+            return workers;
+        }
+        // 근무표 저장 함수
+        function save() {
+            var result = document.getElementById("result");
+            var table = result.firstChild;
+            // table 요소가 존재하는지 확인
+            if (table) {
+                var csv = [];
+                for (var i = 0; i < table.rows.length; i++) {
+                    var row = [];
+                    for (var j = 0; j < table.rows[i].cells.length; j++) {
+                        row.push(table.rows[i].cells[j].innerText);
+                    }
+                    csv.push(row.join(","));
+                }
+                var a = document.createElement("a");
+                a.href = "data:text/csv;charset=utf-8," + csv.join("\n");
+                a.download = "근무표.csv";
+                a.click();
+            } else {
+                alert("근무표가 아직 생성되지 않았습니다. 먼저 '근무표 생성' 버튼을 클릭하세요.");
+            }
+        }
+    </script>
+</body>
+</html>
