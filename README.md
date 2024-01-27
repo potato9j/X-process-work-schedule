@@ -25,3 +25,23 @@
 - Ver 1.6 : rewult요소의 첫번째 자식 요소인 table요소를 참조하나, generate함수를 호출하여 근무표를 생성하기 전에 save함수를 호출하면, table요소가 아직 생성되지 않았으므로 공백발생.
 - Ver 1.7 : save함수 호출이전에 generate함수를 먼저 호출하는 것을 보장하기 위해 save함수에서 table요소의 존재를 확인하는 코드를 추가함. 작동됨.
 - Ver 1.8 : 하루에 2번 근무. 0006이후에 0612근무 경우 발생.
+
+업데이트 날짜 | Ver. | 작동여부 | 콘솔 오류코드 | 발생문제
+| :---: | --- | --- | --- | :---: |
+23.09.09 | Main | Broken Camera <br> Crack Camera | Strat Project. | A3
+23.09.11 | Serve | Readme.md | MCT-A | WS / TC1
+23.10.17 | Main | Broken Camera | BCF-M | WS / TC2
+23.10.17 | Main | Broken Camera | BCF-M | WS / TC1,2
+23.10.18 | Main | Crack Camera | RCF-M | WS / TC1
+23.10.18 | Main | Broken Camera | BCF-F | WS / TC1,2
+23.10.18 | Main | Crack Camera | RCF-F | WS
+23.10.19 | Simul. | 1 - Beta Test | KAMASF AndroidOS BetaTest 1.0 : Fale | WS
+23.10.19 | Simul. | 2 - Beta Test | KAMASF AndroidOS BetaTest 1.1 : Fale | WS
+23.10.19 | Simul. | 3 - Beta Test | KAMASF AndroidOS BetaTest 1.2 : Succ | WS
+23.10.19 | Simul. | 4 - Beta Test | KAMASF AndroidOS BetaTest 1.3 : Fale | WS
+23.10.19 | Simul. | 5 - Beta Test | KAMASF AndroidOS BetaTest 1.4 : Succ | WS
+23.10.19 | Simul. | 6 - Beta Test | KAMASF AndroidOS BetaTest 1.5 : Succ | WS
+23.10.20 | Simul. | 7 - Beta Test | KAMASF AndroidOS BetaTest 1.4 : Succ | WS
+23.10.19 | Simul. | 1 - Alpha Test | KAMASF AndroidOS AlphaTest 2.0 : Succ | WS
+23.10.19 | Serve | Readme.md <br> PRIVACY_POLICY.md | MCT-A <br> PRIV.-A | WS
+23.11.06 | BUGFIX | 1 - Release | 
