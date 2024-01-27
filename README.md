@@ -17,31 +17,14 @@
 
 
 ## 테스트 결과
-- Ver 1.1 : 세부 조건에 부합하는 코드를 포함시키지 않았기때문에 기초모델이 되는 코드
-- Ver 1.2 : 세부 조건에 부합하는 코드를 포함하였지만 일부 공정성 문제와 몇몇 인원이 난수 내에서 누락되는 경우 발생
-- Ver 1.3 : 1.2버전과는 다른 형식의 모델링을 했지만 작동안됨.
-- Ver 1.4 : 1.3버전 기반 수정본. 작동안됨. 개발자도구-콘솔에 오류 표기조차 안됨.
-- Ver 1.5 : save함수에서 tavle요소의 rows속성을 읽을때 오류 발생. (table요소가 공백인 경우에 발생됨. 즉, table요소가 아직 생성되지 않았거나, 이미 제거된 상태로 추측)
-- Ver 1.6 : rewult요소의 첫번째 자식 요소인 table요소를 참조하나, generate함수를 호출하여 근무표를 생성하기 전에 save함수를 호출하면, table요소가 아직 생성되지 않았으므로 공백발생.
-- Ver 1.7 : save함수 호출이전에 generate함수를 먼저 호출하는 것을 보장하기 위해 save함수에서 table요소의 존재를 확인하는 코드를 추가함. 작동됨.
-- Ver 1.8 : 하루에 2번 근무. 0006이후에 0612근무 경우 발생.
 
 업데이트 날짜 | Ver. | 작동여부 | 콘솔 오류코드 | 발생문제
 | :---: | --- | --- | --- | :---: |
-23.09.09 | Main | Broken Camera <br> Crack Camera | Strat Project. | A3
-23.09.11 | Serve | Readme.md | MCT-A | WS / TC1
-23.10.17 | Main | Broken Camera | BCF-M | WS / TC2
-23.10.17 | Main | Broken Camera | BCF-M | WS / TC1,2
-23.10.18 | Main | Crack Camera | RCF-M | WS / TC1
-23.10.18 | Main | Broken Camera | BCF-F | WS / TC1,2
-23.10.18 | Main | Crack Camera | RCF-F | WS
-23.10.19 | Simul. | 1 - Beta Test | KAMASF AndroidOS BetaTest 1.0 : Fale | WS
-23.10.19 | Simul. | 2 - Beta Test | KAMASF AndroidOS BetaTest 1.1 : Fale | WS
-23.10.19 | Simul. | 3 - Beta Test | KAMASF AndroidOS BetaTest 1.2 : Succ | WS
-23.10.19 | Simul. | 4 - Beta Test | KAMASF AndroidOS BetaTest 1.3 : Fale | WS
-23.10.19 | Simul. | 5 - Beta Test | KAMASF AndroidOS BetaTest 1.4 : Succ | WS
-23.10.19 | Simul. | 6 - Beta Test | KAMASF AndroidOS BetaTest 1.5 : Succ | WS
-23.10.20 | Simul. | 7 - Beta Test | KAMASF AndroidOS BetaTest 1.4 : Succ | WS
-23.10.19 | Simul. | 1 - Alpha Test | KAMASF AndroidOS AlphaTest 2.0 : Succ | WS
-23.10.19 | Serve | Readme.md <br> PRIVACY_POLICY.md | MCT-A <br> PRIV.-A | WS
-23.11.06 | BUGFIX | 1 - Release | 
+24.01.24 | Ver1.1 | 1 | - | 세부 조건을 입력하지 않은 기초모델 코드
+24.01.25 | Ver1.2 | 1 | - | 세부 조건에 부합하는 코드를 포함하였지만, 일부 공정성 문제와 일부 객체값이 난수배열 내에서 누락되는 경우 발생
+24.01.27 | Ver1.3 | 0 | - | Ver1.2와는 전혀 다른 형식의 모델링을 했지만 작동안됨.
+24.01.27 | Ver1.4 | 0 | - | Ver1.3기반 수정본. 개발자도구-콘솔에 오류 표기안됨.
+24.01.27 | Ver1.5 | 0 | - | save함수에서 table요소의 rows속성을 읽을때 오류발생. <br> (table요소가 공백인 경우에 발생됨. 즉, table요소가 아직 생성되지 않았거나 이미 제거된 상태로 추측.)
+24.01.27 | Ver1.6 | 0 | - | result요소의 첫번째 자식 요소인 table요소를 참조하거나, generate함수를 호출하여 근무표를 생성하기 젇에 save함수를 호출하면 table요소가 아직 생성되지 않았으므로 공백발생.
+24.01.27 | Ver1.7 | 1 | - | save함수 호출이전에 generate함수를 먼저 호출하는 것을 보장하기 위해 save함수에서 table요소의 존재를 확인하는 코드를 추가함.
+24.01.27 | Ver1.8| 1 | - | 하루에 2번 근무자 발생. 0006이후에 0612근무 경우 발생
