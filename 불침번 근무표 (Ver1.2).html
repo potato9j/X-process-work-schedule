@@ -1,0 +1,162 @@
+<--근무자가 연속으로 배정되지 않도록 로직개선-->
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>불침번 근무표</title>
+<style>
+  table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+  th, td {
+    padding: 5px;
+    text-align: center;
+  }
+  th {
+    background-color: #f2f2f2;
+  }
+  button {
+    margin: 10px;
+  }
+  input[type="date"] {
+    margin: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h2>불침번 근무표</h2>
+<label for="startDate">시작 날짜:</label>
+<input type="date" id="startDate">
+<label for="endDate">종료 날짜:</label>
+<input type="date" id="endDate">
+<button onclick="generateDutyTable()">근무표 생성</button>
+
+<table id="dutyTable">
+  <tr>
+    <th>날짜</th>
+    <th>2200~2330</th>
+    <th>2330~0100</th>
+    <th>0100~0230</th>
+    <th>0230~0400</th>
+    <th>0400~0530</th>
+    <th>0530~0700</th>
+  </tr>
+  <!-- 근무표 데이터가 여기에 들어갑니다 -->
+</table>
+
+<h2>개인별 근무 횟수</h2>
+
+<table id="countTable">
+  <tr>
+    <th>이름</th>
+    <th>근무 횟수</th>
+  </tr>
+  <!-- 개인별 근무 횟수 데이터가 여기에 들어갑니다 -->
+</table>
+
+<script>
+// 근무 가능 인원 목록
+const staffList = [
+    '박찬규', '박태수', '김동규', '김종훈', '김창환', '박지한', '안태균', '유동규', '이정안', '정민수',
+  '정현욱', '조남준', '최영민', '한신우', '홍정빈', '공현우', '김동환', '김정한', '김진수(1)', '변준규',
+  '송수영', '윤예성', '강천왕', '김진수(2)', '김진호', '김현민', '김형민', '박세준', '서민수', '성시우',
+  '임수영', '장혜민', '정우진', '한창윤', '정지현', '김민재', '주성찬', '홍원기', '신호섭', '유태종',
+  '황승민', '김창하', '윤세종', '김민수'
+];
+
+// 불침번 시간
+const shiftTimes = ['2200~2330', '2330~0100', '0100~0230', '0230~0400', '0400~0530', '0530~0700'];
+
+// 근무표 및 개인별 근무 횟수 초기화
+const dutyTable = document.getElementById('dutyTable');
+const countTable = document.getElementById('countTable');
+let staffShiftCount = {};
+
+// 근무자 랜덤 배정 함수
+function assignDuty(startDate, endDate) {
+  // 테이블 초기화
+  dutyTable.innerHTML = `
+    <tr>
+      <th>날짜</th>
+      <th>2200~2330</th>
+      <th>2330~0100</th>
+      <th>0100~0230</th>
+      <th>0230~0400</th>
+      <th>0400~0530</th>
+      <th>0530~0700</th>
+    </tr>
+  `;
+  countTable.innerHTML = `
+    <tr>
+      <th>이름</th>
+      <th>근무 횟수</th>
+    </tr>
+  `;
+  staffShiftCount = staffList.reduce((acc, cur) => ({ ...acc, [cur]: 0 }), {});
+
+  const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
+  let lastAssignedStaff = [];
+
+  for (let i = 0; i < totalDays; i++) {
+    const date = new Date(startDate);
+    date.setDate(date.getDate() + i);
+    const dateString = date.toISOString().split('T')[0];
+    const row = dutyTable.insertRow(-1);
+    row.insertCell(0).textContent = dateString;
+
+    shiftTimes.forEach((shift, index) => {
+      let availableStaff = staffList.filter(staff => staffShiftCount[staff] === Math.min(...Object.values(staffShiftCount)));
+      // 이전에 선택된 근무자 제외
+      availableStaff = availableStaff.filter(staff => !lastAssignedStaff.includes(staff));
+      if (availableStaff.length === 0) {
+        // 모든 근무자가 이미 선택된 경우, 리스트를 리셋합니다.
+        availableStaff = staffList.filter(staff => !lastAssignedStaff.includes(staff));
+      }
+      const selectedStaff = availableStaff[Math.floor(Math.random() * availableStaff.length)];
+      row.insertCell(index + 1).textContent = selectedStaff;
+      staffShiftCount[selectedStaff] += 1;
+      // 마지막에 선택된 근무자 기록
+      lastAssignedStaff.push(selectedStaff);
+      // 다음 날짜에 대한 선택을 위해 마지막 근무자 리스트를 업데이트
+      if (lastAssignedStaff.length > shiftTimes.length) {
+        lastAssignedStaff.shift();
+      }
+    });
+  }
+
+  // 개인별 근무 횟수 표시
+  for (const [staff, count] of Object.entries(staffShiftCount)) {
+    const row = countTable.insertRow(-1);
+    row.insertCell(0).textContent = staff;
+    row.insertCell(1).textContent = count;
+  }
+}
+
+// 근무표 생성 및 표시 함수
+function generateDutyTable() {
+  const startDateValue = document.getElementById('startDate').value;
+  const endDateValue = document.getElementById('endDate').value;
+
+  if (!startDateValue || !endDateValue) {
+    alert('시작 날짜와 종료 날짜를 모두 선택해주세요.');
+    return;
+  }
+
+  const startDate = new Date(startDateValue);
+  const endDate = new Date(endDateValue);
+
+  if (startDate > endDate) {
+    alert('종료 날짜가 시작 날짜보다 이전일 수 없습니다.');
+    return;
+  }
+
+  assignDuty(startDate, endDate);
+}
+
+</script>
+
+</body>
+</html>
