@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>근무표 생성기</title>
+<style>
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f7f7f7;
+    color: #333;
+  }
+  .container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  h2 {
+    color: #4a90e2;
+  }
+  label {
+    margin-right: 10px;
+  }
+  button {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px 0;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #357ab8;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  th {
+    background-color: #4a90e2;
+    color: white;
+  }
+  .schedule-header {
+    background-color: #f2f2f2;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>근무표 생성기</h2>
+
+  <label for="startDate">시작 날짜:</label>
+  <input type="date" id="startDate" name="startDate">
+
+  <label for="endDate">종료 날짜:</label>
+  <input type="date" id="endDate" name="endDate">
+
+  <button onclick="generateSchedule()">근무표 생성</button>
+
+  <table id="scheduleTable">
+    <!-- 테이블 헤더는 여기에 위치 -->
+  </table>
+
+  <table id="countTable">
+    <!-- 테이블 헤더는 여기에 위치 -->
+  </table>
+
+  <p id="weekendAvg"></p>
+  <p id="weekdayAvg"></p>
+</div>
+
+<script>
+// 근무자 명단 배열
+var seniorWorkers = ["박찬규", "김창환", "안태균", "홍정빈", "김동환", "김진수(1)", "변준규", "송수영", "윤예성", "김진호", "김형민", "박세준", "성시우", "김민재", "주성찬", "홍원기", "유태종", "황승민", "윤세종"];
+var juniorWorkers = ["박지한", "유동규", "이정안", "정민수", "정현욱", "조남준", "최영민", "한신우", "공현우", "강천왕", "김진수(2)", "김현민", "서민수", "임수영", "정우진", "한창윤", "김창하", "윤세종", "김민수"];
+
+// 근무 타임 배열
+var workTimes = ['06시~12시', '12시~18시', '18시~00시', '00시~06시'];
+
+// 근무 횟수를 저장할 객체
+var workCount = {};
+var weekendWorkCount = {};
+
+// 날짜 범위 내의 모든 날짜를 가져오는 함수
+function getDatesInRange(startDate, endDate) {
+  const dateArray = [];
+  let currentDate = new Date(startDate);
+
+  while (currentDate <= endDate) {
+    dateArray.push(new Date(currentDate));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return dateArray;
+}
+
+// 근무자 명단 초기화 및 근무 횟수 리셋
+function resetWorkCount(workers) {
+  // 기존 근무 횟수 정보를 초기화합니다.
+  workCount = {};
+  weekendWorkCount = {};
+  workers.forEach(function(worker) {
+    workCount[worker] = { '06시~12시': 0, '12시~18시': 0, '18시~00시': 0, '00시~06시': 0, 'total': 0 };
+    weekendWorkCount[worker] = { '06시~12시': 0, '12시~18시': 0, '18시~00시': 0, '00시~06시': 0, 'total': 0 };
+  });
+}
+
+// 가장 적게 근무한 근무자를 찾는 함수
+function findLeastWorked(workers, time) {
+  var sortedWorkers = workers.sort(function(a, b) {
+    return workCount[a]['total'] - workCount[b]['total'] || workCount[a][time] - workCount[b][time];
+  });
+  return sortedWorkers[0];
+}
+
+// 근무표 생성 함수
+function generateSchedule() {
+  // 입력된 날짜 범위를 가져옵니다.
+  var startDate = document.getElementById('startDate').value;
+  var endDate = document.getElementById('endDate').value;
+
+  // 날짜 입력이 유효한지 확인합니다.
+  if (!startDate || !endDate || new Date(startDate) > new Date(endDate)) {
+    alert('올바른 날짜 범위를 입력해주세요.');
+    return;
+  }
+
+  // 근무자 명단을 초기화하고 근무 횟수를 리셋합니다.
+  resetWorkCount(seniorWorkers.concat(juniorWorkers));
+
+  // 날짜 범위를 계산합니다.
+  var dates = getDatesInRange(new Date(startDate), new Date(endDate));
+
+  // 근무표를 초기화합니다.
+  var scheduleTable = document.getElementById('scheduleTable');
+  scheduleTable.innerHTML = '<tr><th>날짜</th><th>시간대</th><th>조 1</th><th>조 2</th></tr>';
+
+  // 개인별 근무 횟수 테이블을 초기화합니다.
+  var countTable = document.getElementById('countTable');
+  countTable.innerHTML = '<tr><th>근무자</th><th>06시~12시</th><th>12시~18시</th><th>18시~00시</th><th>00시~06시</th><th>총 근무 횟수</th><th>주말 근무 횟수</th><th>평일 근무 횟수</th></tr>';
+
+  // 설정된 날짜 범위 동안 근무표를 생성합니다.
+  dates.forEach(function(date) {
+    workTimes.forEach(function(time) {
+      var row = scheduleTable.insertRow();
+      var dateCell = row.insertCell(0);
+      dateCell.innerText = date.toISOString().split('T')[0];
+      var timeCell = row.insertCell(1);
+      timeCell.innerText = time;
+
+      // 조 1과 조 2의 근무자를 공정하게 선택합니다.
+      var seniorWorker1 = findLeastWorked(seniorWorkers, time);
+      var juniorWorker1 = findLeastWorked(juniorWorkers, time);
+      workCount[seniorWorker1][time]++;
+      workCount[seniorWorker1]['total']++;
+      workCount[juniorWorker1][time]++;
+      workCount[juniorWorker1]['total']++;
+
+      var seniorWorker2 = findLeastWorked(seniorWorkers, time);
+      var juniorWorker2 = findLeastWorked(juniorWorkers, time);
+      workCount[seniorWorker2][time]++;
+      workCount[seniorWorker2]['total']++;
+      workCount[juniorWorker2][time]++;
+      workCount[juniorWorker2]['total']++;
+
+      var teamCell1 = row.insertCell(2);
+      teamCell1.innerText = seniorWorker1 + ' & ' + juniorWorker1;
+      var teamCell2 = row.insertCell(3);
+      teamCell2.innerText = seniorWorker2 + ' & ' + juniorWorker2;
+
+      // 주말 근무 횟수 추가
+      if (date.getDay() === 0 || date.getDay() === 6) {
+        weekendWorkCount[seniorWorker1][time]++;
+        weekendWorkCount[seniorWorker1]['total']++;
+        weekendWorkCount[juniorWorker1][time]++;
+        weekendWorkCount[juniorWorker1]['total']++;
+        weekendWorkCount[seniorWorker2][time]++;
+        weekendWorkCount[seniorWorker2]['total']++;
+        weekendWorkCount[juniorWorker2][time]++;
+        weekendWorkCount[juniorWorker2]['total']++;
+      }
+    });
+  });
+
+  // 주말 평균 근무 횟수 계산
+  var weekendTotal = 0;
+  Object.keys(weekendWorkCount).forEach(function(worker) {
+    weekendTotal += weekendWorkCount[worker]['total'];
+  });
+  var weekendAvg = weekendTotal / (seniorWorkers.length + juniorWorkers.length);
+
+  // 평일 평균 근무 횟수 계산
+  var weekdayTotal = 0;
+  Object.keys(workCount).forEach(function(worker) {
+    weekdayTotal += (workCount[worker]['total'] - weekendWorkCount[worker]['total']);
+  });
+  var weekdayAvg = weekdayTotal / (seniorWorkers.length + juniorWorkers.length);
+
+  document.getElementById('weekendAvg').innerText = '주말 인당 평균 근무 횟수: ' + weekendAvg.toFixed(2);
+  document.getElementById('weekdayAvg').innerText = '평일 인당 평균 근무 횟수: ' + weekdayAvg.toFixed(2);
+
+  // 개인별 근무 횟수를 표시합니다.
+  Object.keys(workCount).forEach(function(worker) {
+    var row = countTable.insertRow();
+    var nameCell = row.insertCell(0);
+    nameCell.innerText = worker;
+    Object.keys(workCount[worker]).forEach(function(key, index) {
+      if (key !== 'total') {
+        var cell = row.insertCell(index + 1);
+        cell.innerText = workCount[worker][key];
+      }
+    });
+    var totalCell = row.insertCell(5);
+    totalCell.innerText = workCount[worker]['total'];
+
+    // 주말 근무 횟수 표시
+    var weekendCell = row.insertCell(6);
+    weekendCell.innerText = weekendWorkCount[worker]['total'];
+    
+    // 평일 근무 횟수 표시
+    var weekdayCell = row.insertCell(7);
+    weekdayCell.innerText = workCount[worker]['total'] - weekendWorkCount[worker]['total'];
+  });
+}
+</script>
+
+</body>
+</html>
